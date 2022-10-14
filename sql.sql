@@ -12,7 +12,8 @@ DROP table if exists summary_table;
 CREATE table summary_table 
 	(
 	customer_name varchar(70),
-	total_amount numeric
+	total_amount numeric,
+	email varchar(80)
 );
 
 insert into detail_table (
@@ -43,22 +44,21 @@ INSERT INTO summary_table (
 		sum(amount)
 	FROM detail_table
 	GROUP BY customer_id, customer_name, email
-	HAVING sum(amount) > 100
+	HAVING sum(amount) > 30
 	ORDER BY count(customer_id)DESC
 	limit 50
 );
 
 RETURN NEW;
-END; $$
-
+END;$$;
 
 CREATE TRIGGER summary_update_trigger
 AFTER INSERT ON detail_table
 FOR EACH STATEMENT
-EXECUTE PROCEDURE summary_update_function;
+EXECUTE PROCEDURE summary_update_function();
 
-CREATE PROCEDURE update_all_tables();
-LANGUAGE plgsql
+CREATE PROCEDURE update_all_tables()
+LANGUAGE plpgsql
 AS $$
 BEGIN
 
@@ -77,4 +77,6 @@ select
 	p.payment_id, p.amount
 FROM payment as P
 INNER JOIN customer AS c ON c.customer_id = p.customer_id;
-END;$$
+END;$$;
+
+select * from summary_table;
