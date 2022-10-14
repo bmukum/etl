@@ -29,4 +29,24 @@ select
 FROM payment as P
 INNER JOIN customer AS c ON c.customer_id = p.customer_id;
 
-select * from payment;
+create function summary_update()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN 
+
+DELETE FROM summary_table;
+INSERT INTO summary_table (
+	SELECT 
+		concat_ws (',', first_name, first_name) AS customer_name,
+		email,
+		sum(amount)
+	FROM detail_table
+	GROUP BY customer_id, customer_name, email
+	HAVING sum(amount) > 100
+	ORDER BY count(customer_id)DESC
+	limit 50
+);
+
+RETURN NEW;
+END; $$
