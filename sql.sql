@@ -50,3 +50,31 @@ INSERT INTO summary_table (
 
 RETURN NEW;
 END; $$
+
+
+CREATE TRIGGER summary_update_trigger
+AFTER INSERT ON detail_table
+FOR EACH STATEMENT
+EXECUTE PROCEDURE summary_update_function;
+
+CREATE PROCEDURE update_all_tables();
+LANGUAGE plgsql
+AS $$
+BEGIN
+
+DELETE FROM detail_table;
+
+INSERT INTO detail_table(
+	customer_id,
+	first_name,
+	last_name,
+	email,
+	payment_id,
+	amount
+)
+select
+	c.customer_id, c.first_name, c.last_name, c.email,
+	p.payment_id, p.amount
+FROM payment as P
+INNER JOIN customer AS c ON c.customer_id = p.customer_id;
+END;$$
