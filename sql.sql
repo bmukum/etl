@@ -40,7 +40,7 @@ BEGIN
 DELETE FROM summary_table;
 INSERT INTO summary_table (
 	SELECT 
-		concat_ws (',', first_name, last_name) AS customer_name,
+		concat_ws (' ', first_name, last_name) AS customer_name,
 		sum(amount) AS total_amount,
 		email
 		
