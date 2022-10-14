@@ -27,7 +27,7 @@ insert into detail_table (
 select
 	c.customer_id, c.first_name, c.last_name, c.email,
 	p.payment_id, p.amount
-FROM payment as P
+FROM payment as p
 INNER JOIN customer AS c ON c.customer_id = p.customer_id;
 
 create function summary_update_function()
@@ -39,9 +39,10 @@ BEGIN
 DELETE FROM summary_table;
 INSERT INTO summary_table (
 	SELECT 
-		concat_ws (',', first_name, first_name) AS customer_name,
-		email,
-		sum(amount)
+		concat_ws (',', first_name, last_name) AS customer_name,
+		sum(amount) AS total_amount,
+		email
+		
 	FROM detail_table
 	GROUP BY customer_id, customer_name, email
 	HAVING sum(amount) > 30
@@ -57,7 +58,7 @@ AFTER INSERT ON detail_table
 FOR EACH STATEMENT
 EXECUTE PROCEDURE summary_update_function();
 
-CREATE PROCEDURE update_all_tables()
+CREATE PROCEDURE update_all_table()
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -75,8 +76,10 @@ INSERT INTO detail_table(
 select
 	c.customer_id, c.first_name, c.last_name, c.email,
 	p.payment_id, p.amount
-FROM payment as P
+FROM payment as p
 INNER JOIN customer AS c ON c.customer_id = p.customer_id;
 END;$$;
 
+CALL update_all_table();
 select * from summary_table;
+
