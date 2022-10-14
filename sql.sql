@@ -30,6 +30,7 @@ select
 FROM payment as p
 INNER JOIN customer AS c ON c.customer_id = p.customer_id;
 
+DROP function if exists summary_update_function;
 create function summary_update_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -45,7 +46,7 @@ INSERT INTO summary_table (
 		
 	FROM detail_table
 	GROUP BY customer_id, customer_name, email
-	HAVING sum(amount) > 30
+	HAVING sum(amount) > 100
 	ORDER BY count(customer_id)DESC
 	limit 50
 );
@@ -58,6 +59,7 @@ AFTER INSERT ON detail_table
 FOR EACH STATEMENT
 EXECUTE PROCEDURE summary_update_function();
 
+DROP PROCEDURE if exists update_all_table;
 CREATE PROCEDURE update_all_table()
 LANGUAGE plpgsql
 AS $$
