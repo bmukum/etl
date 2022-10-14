@@ -29,7 +29,7 @@ select
 FROM payment as P
 INNER JOIN customer AS c ON c.customer_id = p.customer_id;
 
-create function summary_update()
+create function summary_update_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
